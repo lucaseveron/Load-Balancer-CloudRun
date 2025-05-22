@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  PROJECT_ID: tu-proyecto-gcp
+  PROJECT_ID: learned-maker-459200-v6
   REGION: us-central1
   SERVICE_NAME: hola-mundo
 
