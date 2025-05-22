@@ -9,6 +9,7 @@ env:
   PROJECT_ID: learned-maker-459200-v6
   REGION: us-central1
   SERVICE_NAME: hola-mundo
+  REPO_NAME: cloud-run
 
 jobs:
   deploy:
@@ -27,6 +28,7 @@ jobs:
       uses: google-github-actions/setup-gcloud@v2
       with:
         project_id: ${{ env.PROJECT_ID }}
+
     - name: Create Artifact Registry (si no existe)
       run: |
         gcloud artifacts repositories list --location=$REGION \
@@ -39,17 +41,18 @@ jobs:
     - name: Build and push Docker image
       run: |
         gcloud auth configure-docker $REGION-docker.pkg.dev
-        docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/cloud-run/$SERVICE_NAME .
-        docker push $REGION-docker.pkg.dev/$PROJECT_ID/cloud-run/$SERVICE_NAME
+        docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$SERVICE_NAME .
+        docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$SERVICE_NAME
 
     - name: Deploy to Cloud Run
       run: |
         gcloud run deploy $SERVICE_NAME \
-          --image=$REGION-docker.pkg.dev/$PROJECT_ID/cloud-run/$SERVICE_NAME \
+          --image=$REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$SERVICE_NAME \
           --platform=managed \
           --region=$REGION \
           --allow-unauthenticated
-        - name: Setup Terraform
+
+    - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
 
     - name: Terraform Init & Apply
@@ -59,4 +62,5 @@ jobs:
         terraform apply -auto-approve \
           -var="project_id=${{ env.PROJECT_ID }}" \
           -var="region=${{ env.REGION }}" \
-          -var="image_url=$REGION-docker.pkg.dev/$PROJECT_ID/cloud-run/$SERVICE_NAME"
+          -var="image_url=$REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$SERVICE_NAME"
+
