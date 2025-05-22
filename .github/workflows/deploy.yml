@@ -41,3 +41,14 @@ jobs:
           --platform=managed \
           --region=$REGION \
           --allow-unauthenticated
+        - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform Init & Apply
+      working-directory: infra
+      run: |
+        terraform init
+        terraform apply -auto-approve \
+          -var="project_id=${{ env.PROJECT_ID }}" \
+          -var="region=${{ env.REGION }}" \
+          -var="image_url=$REGION-docker.pkg.dev/$PROJECT_ID/cloud-run/$SERVICE_NAME"
