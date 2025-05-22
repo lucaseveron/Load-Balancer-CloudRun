@@ -15,7 +15,7 @@ variable "service_name" {
 }
 
 variable "image_url" {
-  description = "URL de la imagen en Artifact Registry o Container Registry"
+  description = ""
   type        = string
 }
 

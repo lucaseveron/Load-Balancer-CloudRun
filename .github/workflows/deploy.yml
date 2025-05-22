@@ -27,6 +27,14 @@ jobs:
       uses: google-github-actions/setup-gcloud@v2
       with:
         project_id: ${{ env.PROJECT_ID }}
+    - name: Create Artifact Registry (si no existe)
+      run: |
+        gcloud artifacts repositories list --location=$REGION \
+        | grep $REPO_NAME || \
+        gcloud artifacts repositories create $REPO_NAME \
+          --repository-format=docker \
+          --location=$REGION \
+          --description="Repo para Cloud Run"
 
     - name: Build and push Docker image
       run: |
