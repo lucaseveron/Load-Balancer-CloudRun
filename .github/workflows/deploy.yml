@@ -3,7 +3,7 @@ name: Deploy to Cloud Run with Load Balancer
 on:
   push:
     branches:
-      - main
+      - develop
 
 env:
   PROJECT_ID: learned-maker-459200-v6
