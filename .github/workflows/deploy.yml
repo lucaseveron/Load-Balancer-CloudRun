@@ -1,4 +1,4 @@
-name: Deploy to Cloud Run with Load Balancer
+name: Deploy to Cloud Run
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
       with:
         project_id: ${{ env.PROJECT_ID }}
 
-    - name: Create Artifact Registry (si no existe)
+    - name: Create Artifact Registry if not exists
       run: |
         gcloud artifacts repositories list --location=$REGION \
         | grep $REPO_NAME || \
@@ -39,16 +39,10 @@ jobs:
           --description="Repo para Cloud Run"
 
     - name: Build and push Docker image
-  run: |
-    gcloud auth configure-docker us-central1-docker.pkg.dev
-    docker build -t us-central1-docker.pkg.dev/learned-maker-459200-v6/mi-repo/hola-mundo .
-    docker push us-central1-docker.pkg.dev/learned-maker-459200-v6/mi-repo/hola-mundo
-    gcloud run deploy hola-mundo \
-      --image=us-central1-docker.pkg.dev/learned-maker-459200-v6/mi-repo/hola-mundo \
-      --region=us-central1 \
-      --platform=managed \
-      --allow-unauthenticated
-
+      run: |
+        gcloud auth configure-docker $REGION-docker.pkg.dev
+        docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$SERVICE_NAME .
+        docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$SERVICE_NAME
 
     - name: Deploy to Cloud Run
       run: |
@@ -57,16 +51,3 @@ jobs:
           --platform=managed \
           --region=$REGION \
           --allow-unauthenticated
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-
-    - name: Terraform Init & Apply
-      working-directory: infra
-      run: |
-        terraform init
-        terraform apply -auto-approve \
-          -var="project_id=${{ env.PROJECT_ID }}" \
-          -var="region=${{ env.REGION }}" \
-          -var="image_url=$REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$SERVICE_NAME"
-
