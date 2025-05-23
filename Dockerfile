@@ -1,14 +1,22 @@
-FROM python:3.11-slim
+# Usa una imagen base de Python
+FROM python:3.10-slim
 
+# Crea un directorio de trabajo
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+# Copia dependencias
+COPY requirements.txt .
 
+# Instala dependencias
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copia el resto del código
 COPY . .
 
-ENV PORT=8080
+# Expone el puerto
 EXPOSE 8080
 
-CMD ["python", "app.py"]
+# Comando de ejecución (usa gunicorn con Flask)
+CMD ["gunicorn", "-b", ":8080", "main:app"]
+
 

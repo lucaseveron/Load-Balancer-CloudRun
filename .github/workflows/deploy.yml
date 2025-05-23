@@ -41,8 +41,14 @@ jobs:
     - name: Build and push Docker image
       run: |
         gcloud auth configure-docker $REGION-docker.pkg.dev
-        docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$SERVICE_NAME .
-        docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$SERVICE_NAME
+        docker build -t us-central1-docker.pkg.dev/PROJECT-ID/REPO/IMAGE .
+        docker push us-central1-docker.pkg.dev/PROJECT-ID/REPO/IMAGE
+        gcloud run deploy hola-mundo \
+          --image=us-central1-docker.pkg.dev/PROJECT-ID/REPO/IMAGE \
+          --region=us-central1 \
+          --platform=managed \
+          --allow-unauthenticated
+
 
     - name: Deploy to Cloud Run
       run: |
